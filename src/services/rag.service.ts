@@ -3,16 +3,23 @@ import { splitDocuments } from "./document.service";
 import { createVectorStore } from "../vectorstore/pgvector.store";
 
 export async function ingestDocument(filePath: string) {
-  // 1. Load document
   const documents = await loadPDF(filePath);
+  return addDocumentsToVectorStore(documents);
+}
 
-  // 2. Split into chunks
+export async function ingestPdf(file: Blob, fileName: string) {
+  const documents = await loadPDF(file);
+
+  for (const document of documents) {
+    document.metadata = { ...document.metadata, source: fileName };
+  }
+
+  return addDocumentsToVectorStore(documents);
+}
+
+async function addDocumentsToVectorStore(documents: any[]) {
   const chunks = await splitDocuments(documents);
-
-  // 3. Create vector store
   const vectorStore = await createVectorStore();
-
-  // 4. Store embeddings
   await vectorStore.addDocuments(chunks);
 
   return {

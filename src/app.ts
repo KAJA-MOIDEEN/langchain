@@ -18,4 +18,11 @@ app.get("/health", (req, res) => {
   res.json({
     status: "OK",
     service: "LangChain RAG API",
-  });
+  });
+});
+
+app.use("/api", chatRoutes);
+
+app.use(errorMiddleware);
+
+export default app;
